@@ -2,23 +2,23 @@ import os
 
 import numpy as np
 import pandas as pd
-import tools
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
 from sklearn.model_selection import KFold
 
-import cfg
+import model_tls
+import model_cfg
 
 
 def run(model, metrics_file_name="metrics.txt"):
 
     # load the dataset from a parquet file
-    dataset_path = tools.get_dataset_file_path()
+    dataset_path = model_tls.get_dataset_file_path()
     df = pd.read_parquet(dataset_path)
     feature_cols = [c for c in df.columns if c != "target"]
 
     # k-fold
-    kf = KFold(n_splits=cfg.N_SPLITS, shuffle=True, random_state=cfg.RS)
+    kf = KFold(n_splits=model_cfg.N_SPLITS, shuffle=True, random_state=model_cfg.RS)
     y_pred = np.zeros_like(df.target.values)
     for train_index, test_index in kf.split(df):
         train_df, eval_df = df.iloc[train_index], df.iloc[test_index]
@@ -43,13 +43,13 @@ def run(model, metrics_file_name="metrics.txt"):
 
 if __name__ == "__main__":
 
-    # fetch the dataset
-    dataset_path = tools.get_dataset_file_path()
+    # fetch the dataset if not found
+    dataset_path = model_tls.get_dataset_file_path()
     if not os.path.isfile(dataset_path):
-        tools.fetch_dateset()
+        model_tls.fetch_dateset()
 
     # instanciate the model
-    model = RandomForestRegressor(random_state=cfg.RS, n_jobs=cfg.N_JOBS)
+    model = RandomForestRegressor(random_state=model_cfg.RS, n_jobs=model_cfg.N_JOBS)
 
     # train and evaluate the model
     run(model)
