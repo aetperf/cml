@@ -133,3 +133,5 @@ data/
 models/
 notebooks/
 
+# metrics text file
+metrics.txt
