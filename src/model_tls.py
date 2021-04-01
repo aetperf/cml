@@ -4,11 +4,10 @@ import git
 import pandas as pd
 from sklearn.datasets import load_boston
 
-
 import model_cfg
 
 
-def get_dataset_file_path():
+def get_dataset_file_path() -> str:
 
     repo = git.Repo(os.path.realpath(__file__), search_parent_directories=True)
     repo_dir = repo.working_tree_dir
@@ -18,7 +17,7 @@ def get_dataset_file_path():
     return dataset_path
 
 
-def fetch_dateset():
+def fetch_dateset() -> None:
 
     # load the dataset from scikit-learn into a dataframe
     d = load_boston()

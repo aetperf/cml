@@ -3,14 +3,20 @@ import os
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
+from sklearn.metrics import (
+    max_error,
+    mean_absolute_error,
+    mean_absolute_percentage_error,
+    mean_squared_error,
+    r2_score,
+)
 from sklearn.model_selection import KFold
 
-import model_tls
 import model_cfg
+import model_tls
 
 
-def run(model, metrics_file_name="metrics.txt"):
+def run(model, metrics_file_name: str = "metrics.txt") -> None:
 
     # load the dataset from a parquet file
     dataset_path = model_tls.get_dataset_file_path()
@@ -18,7 +24,9 @@ def run(model, metrics_file_name="metrics.txt"):
     feature_cols = [c for c in df.columns if c != "target"]
 
     # k-fold
-    kf = KFold(n_splits=model_cfg.N_SPLITS, shuffle=True, random_state=model_cfg.RS)
+    kf = KFold(
+        n_splits=model_cfg.N_SPLITS, shuffle=True, random_state=model_cfg.RS
+    )
     y_pred = np.zeros_like(df.target.values)
     for train_index, test_index in kf.split(df):
         train_df, eval_df = df.iloc[train_index], df.iloc[test_index]
@@ -31,7 +39,13 @@ def run(model, metrics_file_name="metrics.txt"):
 
     # display & write to text file
     mode = "w"
-    for metric in [mean_absolute_error, mean_absolute_percentage_error]:
+    for metric in [
+        max_error,
+        mean_absolute_error,
+        mean_squared_error,
+        mean_absolute_percentage_error,
+        r2_score,
+    ]:
         s = f"{metric.__name__[:38]:>38} : \
             {metric(df.target.values, y_pred):15.8f}"
         print(s)
@@ -49,7 +63,9 @@ if __name__ == "__main__":
         model_tls.fetch_dateset()
 
     # instanciate the model
-    model = RandomForestRegressor(random_state=model_cfg.RS, n_jobs=model_cfg.N_JOBS)
+    model = RandomForestRegressor(
+        random_state=model_cfg.RS, n_jobs=model_cfg.N_JOBS
+    )
 
     # train and evaluate the model
     run(model)
